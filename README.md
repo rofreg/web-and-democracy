@@ -14,6 +14,7 @@ In this example, we will:
 1. Click the green "Clone or download" button near the upper-right of this page, then choose "Download ZIP"
 2. Un-zip the file you downloaded
 3. Open `example.html` in your web browser
+4. Open `example.html` in a text editor too, so that you can look at the source code and see how this example works
 
 ## A few suggested tools/resources
 
