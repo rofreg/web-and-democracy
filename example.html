@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Web &amp; Democracy: Working with an API</title>
+
+    <!--
+      Let's include jQuery on our page!
+      jQuery is a Javascript library that makes it easier to work with JSON and HTML.
+    -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <!--
+      First, let's create a layout for our page.
+    -->
+    <h1>Providence 2017 Motor Vehicle Tax Roll</h1>
+    <h2>The number of cars per production year</h2>
+    <ul id='listOfData'>
+      <!--
+        This is where we will print our data, once we've finished loading it and processing it.
+        We'll create a list of bullet points, where each bullet point looks like this:
+        <li>Some data</li>
+      -->
+    </ul>
+
+
+    <!--
+      Okay, we've finished creating our layout.
+      Now let's write a function that describes how we want to fill in that layout after we load our data.
+      We'll call this function `processData`.
+    -->
+    <script>
+      // What do we want to do once we load the data?
+      function processData(data){
+        // The `data` variable is an array of all the information that we loaded
+
+        // Let's print the total number of records that we loaded to the browser console
+        // Printing things to the console can be useful for debugging (e.g. "Did we actually load any records?")
+        console.log(`Processing ${data.length} records...`);
+
+        // Let's keep track of the total number of registered cars per production year (e.g. an '03 Ford Taurus)
+        // To do this, we'll create an empty Javascript object
+        var carsByYear = {};
+
+        // Now let's iterate through each individual car in our dataset
+        // `for (... of ...)` is an easy way to go through an ARRAY (e.g. [1, 2, 3]) item-by-item
+        for (item of data) {
+          // Each car has an attribute called `year_make` that looks like this: "17 FORD"
+          // We want to split that attribute into two parts: the year, and the make.
+
+          var yearAndMake = item.year_make.split(" ");  // This turns "17 FORD" into ["17", "FORD"]
+          var year = yearAndMake[0];                    // Get the first item in the array, i.e. "17"
+          var make = yearAndMake[1];                    // Get the second item in the array, i.e. "FORD"
+
+          // Now we know what year this car was made in! Let's add it to the totals in carsByYear.
+          // If this is the first car that we've seen w/ this year, let's set carsByYear[year] to an initial value of 1.
+          // Otherwise, we'll increase the existing tally for that year by 1.
+          if (carsByYear[year] == undefined) {
+            carsByYear[year] = 1;
+          } else {
+            carsByYear[year] = carsByYear[year] + 1;
+          }
+        }
+
+        // Now we have a Javascript object (`carsByYear`) that knows the total number of registered cars by year!
+        // Let's iterate through each key-and-value in carsByYear and print out our results.
+        // `for (... in ...)` is an easy way to go through an OBJECT (e.g. {"plate_no": "123456"}) item-by-item
+        for (year in carsByYear) {
+          // This jQuery command finds the HTML tag whose `id` attribute is "listOfData".
+          // Then it appends some new HTML content to the inside of that tag.
+          $('#listOfData').append(`<li>${year}: ${carsByYear[year]}`);
+        }
+      }
+    </script>
+
+
+    <!--
+      We've set everything up! All that's left is to load our actual data.
+      Let's fetch our JSON data from the Providence Open Data website.
+    -->
+    <script>
+      $.ajax({
+        url: "https://data.providenceri.gov/resource/vyz5-ii9r.json",
+        data: {
+          "$limit" : 1000, // How many records do we want to load?
+          // "$$app_token" : "YOUR_TOKEN" // Uncomment this line and replace with your own Providence Open Data token
+        }
+      }).done(function(data) {
+        // When the JSON data finishes loading, this code will get run. What should we do now?
+        // Let's call our function to process the data and print it on the page.
+        processData(data)
+      });
+    </script>
+
+
+    <!--
+      A NICE THING TO KNOW:
+      Alternately, instead of loading the data from another website, we could just include the JSON blob directly
+      in our page. This can be useful if the site that you are loading data from has rate limiting (e.g. "you can
+      only load this data 50 times per day!"), or if you want to test your code with a smaller number of records.
+      To do this, you would replace the JSON-loading code above with the following:
+
+      <script>
+        var data = YOUR_JSON_BLOB_GOES_HERE;
+        processData(data);
+      </script>
+    -->
+  </body>
+</html>
